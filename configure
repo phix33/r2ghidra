@@ -126,12 +126,12 @@ done
 : ${INSTALL_PROGRAM_STRIP:=${INSTALL} -m 755 -s}
 : ${INSTALL_MAN:=${INSTALL} -m 444}
 : ${INSTALL_LIB:=${INSTALL} -m 755 -c}
- PKGNAME='r2ghidra' ; VERSION='6.2.0' ; VERSION_MAJOR=6; VERSION_MINOR=2; VERSION_PATCH=0; VERSION_NUMBER=60200; CONTACT_MAIL="pancake@nopcode.org" ; CONTACT_NAME="pancake" ; CONTACT="pancake <pancake@nopcode.org>" ;
+ PKGNAME='r2ghidra' ; VERSION='6.2.2' ; VERSION_MAJOR=6; VERSION_MINOR=2; VERSION_PATCH=2; VERSION_NUMBER=60202; CONTACT_MAIL="pancake@nopcode.org" ; CONTACT_NAME="pancake" ; CONTACT="pancake <pancake@nopcode.org>" ;
 }
 
 show_usage() {
 cat <<EOF2
-'configure' configures r2ghidra-6.2.0 to adapt to many kinds of systems.
+'configure' configures r2ghidra-6.2.2 to adapt to many kinds of systems.
 
 Usage: ./configure [OPTION]... [VAR=VALUE]...
 
@@ -203,10 +203,10 @@ ocho() {
 
 show_version() {
 if [ "$QUIET" = 1 ]; then
-	echo "6.2.0"
+	echo "6.2.2"
 	exit 0
 fi
-echo "r2ghidra-6.2.0 configuration script done with acr v2.2.8.
+echo "r2ghidra-6.2.2 configuration script done with acr v2.2.8.
 The 'Free Software Foundation' message is only for autodetection.
 Originally written by pancake <nopcode.org>."
 exit 0
@@ -235,12 +235,11 @@ case $flag in
 	show_version ; ;;
 -r|--r|--report)
 echo "PKGNAME:     r2ghidra"
-echo "VERSION:     6.2.0"
+echo "VERSION:     6.2.2"
 echo "AUTHOR:      pancake"
 echo "EMAIL:       pancake@nopcode.org"
 echo "LANGS:       c++"
 echo "PKGCONFIG:   r_core r_asm r_anal"
-echo "FLAGS:       "
 	exit 0
 	;;
 --cache-file)
@@ -424,14 +423,6 @@ tmp=`${PKGCONFIG} --libs r_core 2>/dev/null`
 if [ $? = 0 ]; then
 echo yes; HAVE_PKGCFG_R_CORE=1;
 R2_LDFLAGS=$tmp; fi; fi
-printf 'checking radare2 >= 6.1.4 for the rxml API... '
-if ${PKGCONFIG} --atleast-version=6.1.4 r_core 2>/dev/null; then
-echo yes
-else
-echo no
-echo 'ERROR: r2ghidra requires radare2 >= 6.1.4' >&2
-exit 1
-fi
 if [ -z "${PKGCONFIG}" ]; then pkg-config --version >/dev/null 2>&1 ; if [ 0 = 0 ]; then PKGCONFIG=pkg-config ; else PKGCONFIG=pkgconf ; fi; fi
 printf 'checking pkg-config flags for r_asm... '
 tmp=`${PKGCONFIG} --cflags r_asm 2>/dev/null`

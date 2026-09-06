@@ -305,7 +305,7 @@ CMDS=<<EOF
 EOF
 EXPECT=<<EOF
 
-uint32_t sym.isFileExist(uint param_1)
+uint32_t sym.isFileExist(char *param_1)
 
 {
     uint32_t uVar1;
