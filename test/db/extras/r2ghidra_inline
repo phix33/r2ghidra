@@ -1,0 +1,150 @@
+# Requires radare2 ABI 163 or newer.
+NAME=inline defaults to enabled and respects the config toggle and callee mark
+FILE=malloc://256
+ARGS=-a x86 -b64
+CMDS=<<EOF
+wx e83b00000083c002c3
+wx b807000000c3 @ 0x40
+af child @ 0x40
+af caller @ 0
+e r2ghidra.inline
+pdg @ 0~child(~?
+afia+ inline @ 0x40
+pdg @ 0~child(~?
+pdg @ 0~return 9
+e r2ghidra.inline=false
+pdg @ 0~child(~?
+e r2ghidra.inline=true
+pdg @ 0~child(~?
+afia- inline @ 0x40
+pdg @ 0~child(~?
+EOF
+EXPECT=<<EOF
+true
+1
+0
+    return 9;
+1
+0
+1
+EOF
+RUN
+
+NAME=inline external function loaded in another IO map
+FILE=malloc://256
+ARGS=-a x86 -b64
+CMDS=<<EOF
+o malloc://256 0x1000
+ompg +x
+wx b807000000c3 @ 0x1000
+wx e8fb0f000083c002c3 @ 0
+af sym.imp.external_child @ 0x1000
+af caller @ 0
+afia+ inline @ 0x1000
+pdg @ 0~external_child(~?
+pdg @ 0~return 9
+EOF
+EXPECT=<<EOF
+0
+    return 9;
+EOF
+RUN
+
+NAME=inline callee receives a register argument
+FILE=malloc://256
+ARGS=-a x86 -b64
+CMDS=<<EOF
+wx bf07000000e83600000083c002c3
+wx 8d4703c3 @ 0x40
+af child @ 0x40
+af caller @ 0
+td int child(int x);
+afia+ inline @ 0x40
+pdg @ 0~child(~?
+pdg @ 0~return 0xc
+EOF
+EXPECT=<<EOF
+0
+    return 0xc;
+EOF
+RUN
+
+NAME=inline callee receives a stack argument
+FILE=malloc://256
+ARGS=-a x86 -b32
+CMDS=<<EOF
+wx 6a07e83900000083c404c3
+wx 8b44240483c003c3 @ 0x40
+af child @ 0x40
+af caller @ 0
+td int child(int x);
+afia+ inline @ 0x40
+pdg @ 0~child(~?
+pdg @ 0~return 10
+EOF
+EXPECT=<<EOF
+0
+    return 10;
+EOF
+RUN
+
+NAME=inline nested callees are expanded at repeated call sites
+FILE=malloc://256
+ARGS=-a x86 -b64
+CMDS=<<EOF
+wx e83b00000089c3e83400000001d8c3
+wx e83b00000083c003c3 @ 0x40
+wx b807000000c3 @ 0x80
+af leaf @ 0x80
+af child @ 0x40
+af caller @ 0
+afia+ inline @ 0x40
+afia+ inline @ 0x80
+pdg @ 0~child(,leaf(~?
+pdg @ 0~return 0x14
+EOF
+EXPECT=<<EOF
+0
+    return 0x14;
+EOF
+RUN
+
+NAME=inline callee keeps both early returns and the caller continuation
+FILE=malloc://256
+ARGS=-a x86 -b64
+CMDS=<<EOF
+wx e83b00000083c002c3
+wx 85ff7406b807000000c3b809000000c3 @ 0x40
+af child @ 0x40
+af caller @ 0
+afia+ inline @ 0x40
+pdg @ 0~child(~?
+pdg @ 0~iVar1 = 9,iVar1 = 7,return iVar1 + 2
+EOF
+EXPECT=<<EOF
+0
+        iVar1 = 9;
+        iVar1 = 7;
+    return iVar1 + 2;
+EOF
+RUN
+
+NAME=inline recursion keeps the recursive call
+FILE=malloc://256
+ARGS=-a x86 -b64
+CMDS=<<EOF
+wx e83b00000083c002c3
+wx e8fbffffff83c001c3 @ 0x40
+af child @ 0x40
+af caller @ 0
+afia+ inline @ 0x40
+pdg @ 0~Could not inline here~?
+pdg @ 0~child(~?
+pdg @ 0~return iVar1 + 3
+EOF
+EXPECT=<<EOF
+1
+1
+    return iVar1 + 3;
+EOF
+RUN

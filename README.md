@@ -64,6 +64,19 @@ Usage: pdg  # Native Ghidra decompiler plugin
 | pdgx          # Dump the XML of the current decompiled function
 ```
 
+With radare2 ABI 163 or newer, `pdg` inlines analyzed callees whose `inline`
+attribute is set when `r2ghidra.inline` is enabled (the default):
+
+```
+afia+ inline @ child
+pdg @ caller
+```
+
+Disable inlining with `e r2ghidra.inline=false`, or clear the mark with
+`afia- inline @ child`. The callee's machine code must be
+available in radare2's IO maps, including for external functions. This uses
+Ghidra's native inliner for argument passing and control flow.
+
 `pdgx` includes the native p-code operation's `is_dead` boolean on its
 `<seqnum>` element, after the existing `space`, `offset` and `uniq` identity
 attributes. The value comes from `PcodeOp::isDead()` for that exact operation;
@@ -155,6 +168,7 @@ The following config vars (for the `e` command) can be used to adjust r2ghidra's
  r2ghidra.cmt.indent: Comment indent
    r2ghidra.deadcode: Include unused code and removed p-code metadata
      r2ghidra.indent: Indent increment
+     r2ghidra.inline: Inline functions marked with the inline attribute
        r2ghidra.lang: Custom Sleigh ID to override auto-detection (e.g. x86:LE:32:default)
     r2ghidra.linelen: Max line length
  r2ghidra.maximplref: Maximum number of references to an expression before showing an explicit variable.

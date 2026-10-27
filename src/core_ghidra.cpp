@@ -86,6 +86,7 @@ CV cfg_var_casts      ("casts",       "false",    "Show type casts where needed"
 CV cfg_var_ccode      ("ccode",       "false",    "Emit clean C identifiers (bare import names, no fcn./sub. prefixes)");
 CV cfg_var_deadcode   ("deadcode",    "false",    "Include unused code and removed p-code metadata");
 CV cfg_var_fixups     ("fixups",      "false",    "Apply pcode fixups");
+CV cfg_var_inline     ("inline",      "true",     "Inline functions marked with the inline attribute");
 CV cfg_var_varargs    ("varargs",     "false",    "Recover printf-family varargs from literal format strings");
 CV cfg_var_vaformats  ("varargs.formats", "",     "Extra printf-style formatters for vararg recovery (bare names, comma separated)");
 CV cfg_var_roprop     ("roprop",      "0",        "Propagate read-only constants (0,1,2,3,4)");
