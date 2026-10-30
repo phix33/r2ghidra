@@ -4,6 +4,9 @@
 #ifndef R2GHIDRA_R2UTILS_H
 #define R2GHIDRA_R2UTILS_H
 
+#include <r_anal.h>
+#include <r_lib.h>
+
 typedef struct r_list_t RList;
 typedef struct r_list_iter_t RListIter;
 
@@ -11,6 +14,17 @@ template<typename T, typename F> void r_list_foreach_cpp(RList *list, const F &c
 	for (RListIter *it = list->head; it; it = it->n) {
 		cb (reinterpret_cast<T *>(it->data));
 	}
+}
+
+template<typename F> void r_anal_function_bbs_foreach_cpp(RAnalFunction *function, const F &cb) {
+#if R2_ABIVERSION >= 168
+	RAnalBlock **it;
+	R_VEC_FOREACH (&function->bbs, it) {
+		cb (*it);
+	}
+#else
+	r_list_foreach_cpp<RAnalBlock> (function->bbs, cb);
+#endif
 }
 
 template<typename T, typename F> void r_interval_tree_foreach_cpp(RIntervalTree *tree, const F &cb) {

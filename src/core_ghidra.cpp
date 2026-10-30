@@ -210,7 +210,7 @@ static void seedGlobalPointerRegister(R2Architecture &arch, RCore *core, RAnalFu
 	}
 	AddrSpace *space = arch.getDefaultCodeSpace ();
 	ContextDatabase *cdb = arch.getContextDatabase ();
-	r_list_foreach_cpp<RAnalBlock> (function->bbs, [&](RAnalBlock *bb) {
+	r_anal_function_bbs_foreach_cpp (function, [&](RAnalBlock *bb) {
 		TrackedSet &tset = cdb->createSet (Address (space, bb->addr), Address (space, bb->addr + bb->size));
 		tset.push_back ({ reg, value });
 	});

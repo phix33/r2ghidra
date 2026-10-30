@@ -132,10 +132,7 @@ static bool is_indirect_reg_call(RAnalOp *op) {
 static void walk_bb_regflow(RCore *core, RAnalFunction *fn,
 		const std::unordered_map<ut64, ut64> &defs,
 		const std::function<void(RAnalOp *, std::unordered_map<std::string, ut64> &)> &onOp) {
-	RListIter *iter;
-	void *pos;
-	r_list_foreach (fn->bbs, iter, pos) {
-		RAnalBlock *bb = reinterpret_cast<RAnalBlock *> (pos);
+	r_anal_function_bbs_foreach_cpp (fn, [&](RAnalBlock *bb) {
 		std::unordered_map<std::string, ut64> regs;
 		for (int i = 0; i < bb->ninstr; i++) {
 			ut64 at = r_anal_bb_opaddr_i (bb, i);
@@ -156,7 +153,7 @@ static void walk_bb_regflow(RCore *core, RAnalFunction *fn,
 			}
 			r_anal_op_free (op);
 		}
-	}
+	});
 }
 
 void PcodeFixupPreprocessor::fixupSharedReturnJumpToRelocs(RAnalFunction *r2Func, Funcdata *ghFunc, RCore *core, R2Architecture &arch) {
@@ -213,7 +210,7 @@ static bool has_data_xref_at(RCore *core, ut64 addr) {
 void PcodeFixupPreprocessor::fixupNoreturnCallsBeforeData(RAnalFunction *r2Func, Funcdata *ghFunc, RCore *core, R2Architecture &arch) {
 	auto space = arch.getDefaultCodeSpace ();
 	const ut64 fcnMax = r_anal_function_max_addr (r2Func);
-	r_list_foreach_cpp<RAnalBlock> (r2Func->bbs, [&](RAnalBlock *bb) {
+	r_anal_function_bbs_foreach_cpp (r2Func, [&](RAnalBlock *bb) {
 		ut64 addr = bb->addr;
 		const ut64 bbend = bb->addr + bb->size;
 		while (addr < bbend) {
